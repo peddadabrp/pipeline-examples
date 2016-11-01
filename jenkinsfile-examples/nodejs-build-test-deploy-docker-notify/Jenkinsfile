@@ -27,6 +27,7 @@ THE SOFTWARE.
 node('node') {
 
 
+    def err = null
     currentBuild.result = "SUCCESS"
 
     try {
@@ -73,17 +74,27 @@ node('node') {
         }
 
 
-    catch (err) {
+    catch (caughtError) {
 
+        err = caughtError
         currentBuild.result = "FAILURE"
 
-            mail body: "project build error is here: ${env.BUILD_URL}" ,
+            mail body: "project build error: ${err}" ,
             from: 'xxxx@yyyy.com',
             replyTo: 'yyyy@yyyy.com',
             subject: 'project build failed',
             to: 'zzzz@yyyyy.com'
 
-        throw err
+        }
+
+    finally {
+
+
+        /* Must re-throw exception to propagate error */
+        if (err) {
+            throw err
+        }
+
     }
 
 }
